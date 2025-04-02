@@ -1,0 +1,10 @@
+.shadow-container{
+  box-shadow: 0px 8px .2px rgb(192, 192, 192);
+  user-select: none;
+  transition: all .1s;
+}
+
+.shadow-container:active{
+  box-shadow: none;
+  margin: 0;
+}
