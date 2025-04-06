@@ -2,14 +2,14 @@ import "./app.css";
 import React from "react";
 import { IconSettings, IconX } from "@tabler/icons-react";
 import { useEffect, useRef, useState } from "react";
-import soundStudy from "./assets/audios/david-goggins.mp3";
-import soundBreak from "./assets/audios/alarm.mp3";
+import soundStudy from "./assets/audios/alarm.mp3";
+import soundBreak from "./assets/audios/david-goggins.mp3";
 
 function App() {
   const [component, setComponent] = useState("Study");
   const [showConfig, setShowConfig] = useState(false);
   const [seconds, setSeconds] = useState(0);
-  const [minutes, setMinutes] = useState(1);
+  const [minutes, setMinutes] = useState(25);
   const [isRunning, setIsRunning] = useState(false);
   const interval = useRef({
     seconds: null,
@@ -20,7 +20,6 @@ function App() {
 
   const [newMinutes, setNewMinutes] = useState(0);
   const [newSeconds, setNewSeconds] = useState(0);
-  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
 
   let audioBreak = new Audio();
   let audioStudy = new Audio();
@@ -36,45 +35,27 @@ function App() {
       setMinutes(5);
       setComponent("Break");
 
-      if (url.current.urlBreak) {
-        console.log("galo");
-        audioBreak = new Audio(url.current.urlBreak);
-        if (isAudioPlaying) {
-        } else {
-          setIsAudioPlaying(true);
-          audioBreak.play();
-        }
+      if (url.current.urlStudy) {
+        console.log("audio modificado");
+        audioStudy = new Audio(url.current.urlStudy);
+        audioStudy.play();
       } else {
         console.log("audio padrao");
-        audioBreak = new Audio(soundBreak);
-        audioBreak.play();
-        if (isAudioPlaying) {
-        } else {
-          setIsAudioPlaying(true);
-          audioBreak.play();
-        }
+        audioStudy = new Audio(soundStudy);
+        audioStudy.play();
       }
     } else if (minutes <= 0 && seconds <= 0 && component === "Break") {
       setIsRunning(false);
       setMinutes(20);
       setComponent("Study");
-      if (url.current.urlStudy) {
-        console.log("david goggins 2");
-        audioStudy = new Audio(url.current.urlStudy);
-        if (isAudioPlaying) {
-        } else {
-          setIsAudioPlaying(true);
-          audioStudy.play();
-        }
+      if (url.current.urlBreak) {
+        console.log("audio modificado");
+        audioBreak = new Audio(url.current.urlBreak);
+        audioBreak.play();
       } else {
         console.log("audio padrao");
-        audioStudy = new Audio(soundStudy);
-        audioStudy.play();
-        if (isAudioPlaying) {
-        } else {
-          setIsAudioPlaying(true);
-          audioStudy.play();
-        }
+        audioBreak = new Audio(soundBreak);
+        audioBreak.play();
       }
     }
   }, [minutes, seconds]);
@@ -116,17 +97,27 @@ function App() {
 
   function handleNewAudio(e) {
     if (component === "Break") {
+      console.log("componente atual eh o Break");
       const file = e.target.files[0];
       if (file) {
         url.current.urlBreak = URL.createObjectURL(file);
         console.log(url.current.urlBreak);
       }
     } else if (component === "Study") {
+      console.log("componente atual eh o Study");
       const file = e.target.files[0];
       if (file) {
         url.current.urlStudy = URL.createObjectURL(file);
         console.log(url.current.urlStudy);
       }
+    }
+  }
+
+  function handleExistentAudios() {
+    if (component === "Study") {
+      url.current.urlStudy = null;
+    } else if (component === "Break") {
+      url.current.urlBreak = null;
     }
   }
 
@@ -143,14 +134,22 @@ function App() {
         <div className="h-full mb-10 flex flex-col items-center justify-center">
           <h1 className="text-4xl">{component} Time</h1>
           <div className="timer-container">
-            <span className="text-9xl cursor-pointer">{minutes < 10 ? "0" : ""}{minutes}</span>
-            <span className="text-9xl cursor-pointer">:</span>
-            <span className="text-9xl cursor-pointer">{seconds < 10 ? "0" : ""}{seconds}</span>
+            <span className="text-9xl select-none">
+              {minutes < 10 ? "0" : ""}
+              {minutes}
+            </span>
+            <span className="text-9xl select-none">:</span>
+            <span className="text-9xl select-none">
+              {seconds < 10 ? "0" : ""}
+              {seconds}
+            </span>
           </div>
           <button
-            className="px-8 py-4 bg-neutral-800 rounded-2xl text-xl tracking-widest"
+            className="px-8 py-4 bg-neutral-800 rounded-2xl text-xl tracking-widest cursor-pointer"
             onClick={() => setIsRunning(isRunning === false ? true : false)}
-          >{isRunning === false ? "Start" : "Pause"}</button>
+          >
+            {isRunning === false ? "Start" : "Pause"}
+          </button>
         </div>
       </div>
 
@@ -217,6 +216,27 @@ function App() {
                 onChange={handleNewAudio}
               />
             </div>
+
+            <div className="w-full flex justify-evenly">
+              <div className="flex flex-col items-center justify-center">
+                <label htmlFor="david-goggins">David Goggins Audio</label>
+                <input
+                  type="radio"
+                  id="david-goggins"
+                  name="sound"
+                  className="border-2 border-white rounded-2xl outline-none py-1 px-2 h-12"
+                />
+              </div>
+              <div className="flex flex-col items-center justify-center">
+                <label htmlFor="iphone-alarm">Iphone Alarm Audio</label>
+                <input
+                  type="radio"
+                  id="iphone-alarm"
+                  name="sound"
+                  className="border-2 border-white rounded-2xl outline-none py-1 px-2 h-12"
+                />
+              </div>
+            </div>
             <button
               className="mt-1 py-2 px-4 bg-neutral-800 rounded-xl w-1/3 self-center btn-save"
               onClick={handleNewSettings}
@@ -224,6 +244,11 @@ function App() {
               Save
             </button>
           </div>
+
+          <p className="text-end absolute bottom-0 right-0 p-1 text-xs text-neutral-400">
+            note: if you refresh the page the audio file that you put will be
+            lost
+          </p>
         </div>
       )}
     </div>
