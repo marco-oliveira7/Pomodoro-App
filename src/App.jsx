@@ -41,7 +41,7 @@ function App() {
         audioBreak = new Audio(url.current.urlBreak);
         if (isAudioPlaying) {
         } else {
-          setIsAudioPlaying(true)
+          setIsAudioPlaying(true);
           audioBreak.play();
         }
       } else {
@@ -50,7 +50,7 @@ function App() {
         audioBreak.play();
         if (isAudioPlaying) {
         } else {
-          setIsAudioPlaying(true)
+          setIsAudioPlaying(true);
           audioBreak.play();
         }
       }
@@ -63,7 +63,7 @@ function App() {
         audioStudy = new Audio(url.current.urlStudy);
         if (isAudioPlaying) {
         } else {
-          setIsAudioPlaying(true)
+          setIsAudioPlaying(true);
           audioStudy.play();
         }
       } else {
@@ -72,7 +72,7 @@ function App() {
         audioStudy.play();
         if (isAudioPlaying) {
         } else {
-          setIsAudioPlaying(true)
+          setIsAudioPlaying(true);
           audioStudy.play();
         }
       }
@@ -140,16 +140,17 @@ function App() {
             onClick={() => setShowConfig(showConfig === false ? true : false)}
           />
         </div>
-        <div className="w-full h-full mb-10 flex flex-col items-center justify-center">
+        <div className="h-full mb-10 flex flex-col items-center justify-center">
           <h1 className="text-4xl">{component} Time</h1>
-          <div
-            className="w-85 flex justify-center mb-2 rounded-sm shadow-container"
-            onClick={() => setIsRunning(isRunning === false ? true : false)}
-          >
-            <span className="text-9xl cursor-pointer">{minutes}</span>
+          <div className="timer-container">
+            <span className="text-9xl cursor-pointer">{minutes < 10 ? "0" : ""}{minutes}</span>
             <span className="text-9xl cursor-pointer">:</span>
-            <span className="text-9xl cursor-pointer w-27">{seconds}</span>
+            <span className="text-9xl cursor-pointer">{seconds < 10 ? "0" : ""}{seconds}</span>
           </div>
+          <button
+            className="px-8 py-4 bg-neutral-800 rounded-2xl text-xl tracking-widest"
+            onClick={() => setIsRunning(isRunning === false ? true : false)}
+          >{isRunning === false ? "Start" : "Pause"}</button>
         </div>
       </div>
 

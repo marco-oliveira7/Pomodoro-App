@@ -1,10 +1,20 @@
-.shadow-container{
-  box-shadow: 0px 8px .2px rgb(192, 192, 192);
-  user-select: none;
-  transition: all .1s;
+
+@media screen and (width < 675px) {
+  .config{
+    width: 450px;
+  }
 }
 
-.shadow-container:active{
-  box-shadow: none;
-  margin: 0;
+@media screen and (width < 450px) {
+  .config{
+    width: 350px;
+  }
+  input{
+    width: 150px;
+  }
+}
+@media screen and (width < 390px) {
+  span{
+    font-size: 6rem;
+  }
 }
