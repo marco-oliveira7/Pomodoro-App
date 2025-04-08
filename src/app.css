@@ -17,4 +17,19 @@
   span{
     font-size: 6rem;
   }
+  .next-container{
+    width: 15rem;
+  }
+  .next-icon{
+    right: 0;
+  }
+}
+
+@media screen and (width < 350px) {
+  .config{
+    width: 290px;
+  }
+  input{
+    width: 110px;
+  }
 }

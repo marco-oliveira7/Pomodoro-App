@@ -1,9 +1,8 @@
 import "./app.css";
 import React from "react";
-import { IconSettings, IconX } from "@tabler/icons-react";
+import { IconSettings, IconX, IconChevronsRight } from "@tabler/icons-react";
 import { useEffect, useRef, useState } from "react";
-import soundStudy from "./assets/audios/alarm.mp3";
-import soundBreak from "./assets/audios/david-goggins.mp3";
+import defaultSound from "./assets/audios/default-sound.mp3";
 
 function App() {
   const [component, setComponent] = useState("Study");
@@ -11,6 +10,8 @@ function App() {
   const [seconds, setSeconds] = useState(0);
   const [minutes, setMinutes] = useState(25);
   const [isRunning, setIsRunning] = useState(false);
+  const [next, setNext] = useState(false);
+  const [count, setCount] = useState(0);
   const interval = useRef({
     seconds: null,
     minutes: null,
@@ -18,11 +19,29 @@ function App() {
 
   const url = useRef({ urlStudy: null, urlBreak: null });
 
-  const [newMinutes, setNewMinutes] = useState(0);
-  const [newSeconds, setNewSeconds] = useState(0);
+  const [newMinutes, setNewMinutes] = useState();
+  const [newSeconds, setNewSeconds] = useState();
 
   let audioBreak = new Audio();
   let audioStudy = new Audio();
+
+  useEffect(() => {
+    if (next) {
+      setNext(false);
+      if (component === "Study") {
+        setIsRunning(false);
+        setComponent("Break");
+        setMinutes(5);
+        setSeconds(0);
+        setCount((c) => c + 1);
+      } else {
+        setIsRunning(false);
+        setComponent("Study");
+        setMinutes(20);
+        setSeconds(0);
+      }
+    }
+  }, [next]);
 
   useEffect(() => {
     if (component === "Break")
@@ -33,7 +52,9 @@ function App() {
     if (minutes <= 0 && seconds <= 0 && component === "Study") {
       setIsRunning(false);
       setMinutes(5);
+      setSeconds(0);
       setComponent("Break");
+      setCount((c) => c + 1);
 
       if (url.current.urlStudy) {
         console.log("audio modificado");
@@ -41,20 +62,22 @@ function App() {
         audioStudy.play();
       } else {
         console.log("audio padrao");
-        audioStudy = new Audio(soundStudy);
+        audioStudy = new Audio(defaultSound);
         audioStudy.play();
       }
     } else if (minutes <= 0 && seconds <= 0 && component === "Break") {
       setIsRunning(false);
       setMinutes(20);
+      setSeconds(0);
       setComponent("Study");
+
       if (url.current.urlBreak) {
         console.log("audio modificado");
         audioBreak = new Audio(url.current.urlBreak);
         audioBreak.play();
       } else {
         console.log("audio padrao");
-        audioBreak = new Audio(soundBreak);
+        audioBreak = new Audio(defaultSound);
         audioBreak.play();
       }
     }
@@ -90,9 +113,15 @@ function App() {
   }, [isRunning]);
 
   function handleNewSettings() {
-    setMinutes(newMinutes);
-    setSeconds(newSeconds);
-    setShowConfig(false);
+    const inputMinutes = document.querySelector("#minutes");
+    const inputSeconds = document.querySelector("#seconds");
+    if (inputMinutes.value === "" || inputSeconds.value === "") {
+      console.log("preencha os campos");
+    } else {
+      setMinutes(newMinutes);
+      setSeconds(newSeconds);
+      setShowConfig(false);
+    }
   }
 
   function handleNewAudio(e) {
@@ -113,14 +142,6 @@ function App() {
     }
   }
 
-  function handleExistentAudios() {
-    if (component === "Study") {
-      url.current.urlStudy = null;
-    } else if (component === "Break") {
-      url.current.urlBreak = null;
-    }
-  }
-
   return (
     <div className="flex h-screen text-white">
       <div className="w-full bg-neutral-950 p-2  flex flex-col items-center">
@@ -133,7 +154,7 @@ function App() {
         </div>
         <div className="h-full mb-10 flex flex-col items-center justify-center">
           <h1 className="text-4xl">{component} Time</h1>
-          <div className="timer-container">
+          <div className="timer-container my-5">
             <span className="text-9xl select-none">
               {minutes < 10 ? "0" : ""}
               {minutes}
@@ -144,12 +165,26 @@ function App() {
               {seconds}
             </span>
           </div>
-          <button
-            className="px-8 py-4 bg-neutral-800 rounded-2xl text-xl tracking-widest cursor-pointer"
-            onClick={() => setIsRunning(isRunning === false ? true : false)}
-          >
-            {isRunning === false ? "Start" : "Pause"}
-          </button>
+          <div className="relative w-84 flex flex-col justify-center next-container">
+            <button
+              className="px-8 py-4 bg-neutral-800 rounded-2xl text-xl tracking-widest cursor-pointer self-center"
+              onClick={() => setIsRunning(isRunning === false ? true : false)}
+            >
+              {isRunning === false ? "Start" : "Pause"}
+            </button>
+            {isRunning && (
+              <IconChevronsRight
+                size={36}
+                className="next-icon absolute top-1/5 right-10"
+                onClick={() => setNext(true)}
+              />
+            )}
+            {count > 0 && (
+              <p className="mt-1 self-center font-semibold text-md">
+                You are in your {count} study section
+              </p>
+            )}
+          </div>
         </div>
       </div>
 
@@ -163,39 +198,42 @@ function App() {
             />
           </div>
           <div className="flex flex-col justify-evenly items-center h-3/4">
+            {/* input for minutes */}
             <div className="flex flex-col items-center justify-center">
               <label htmlFor="minutes">Minutes</label>
               <input
                 type="number"
-                min={0}
-                max={59}
+                min={1}
+                max={60}
                 id="minutes"
                 className="text-center border-2 border-white rounded-2xl w-3xs outline-none py-1 px-2"
                 value={newMinutes}
                 onChange={(e) =>
-                  e.target.value >= 60 ||
-                  e.target.value === 0 ||
+                  e.target.value >= 61 ||
+                  e.target.value.toString()[0] === "0" ||
                   /[^0-9]/.test(e.target.value)
-                    ? console.log(
-                        "apenas numeros menores que 60 sao permitidos"
-                      )
+                    ? console.log(`apenas numeros menores que 60`)
                     : setNewMinutes(e.target.value)
                 }
               />
             </div>
+
+            {/* input for seconds */}
             <div className="flex flex-col items-center justify-center">
               <label htmlFor="seconds">Seconds</label>
               <input
                 type="number"
-                min={0}
+                min={1}
                 max={59}
                 id="seconds"
                 className="text-center border-2 border-white rounded-2xl w-3xs outline-none py-1 px-2"
                 value={newSeconds}
                 onChange={(e) =>
                   e.target.value >= 60 ||
-                  e.target.value === 0 ||
-                  /[^0-9]/.test(e.target.value)
+                  /[^0-9]/.test(e.target.value) ||
+                  e.target.value.length > 2 ||
+                  (e.target.value.toString()[0] === "0" &&
+                    e.target.value.toString()[1] === "0")
                     ? console.log(
                         "apenas numeros menores que 60 sao permitidos"
                       )
@@ -204,6 +242,7 @@ function App() {
               />
             </div>
 
+            {/* input for files */}
             <div className="flex flex-col items-center justify-center">
               <label htmlFor="sounds">
                 Sounds for when time {component} done
@@ -215,27 +254,6 @@ function App() {
                 accept="audio/*"
                 onChange={handleNewAudio}
               />
-            </div>
-
-            <div className="w-full flex justify-evenly">
-              <div className="flex flex-col items-center justify-center">
-                <label htmlFor="david-goggins">David Goggins Audio</label>
-                <input
-                  type="radio"
-                  id="david-goggins"
-                  name="sound"
-                  className="border-2 border-white rounded-2xl outline-none py-1 px-2 h-12"
-                />
-              </div>
-              <div className="flex flex-col items-center justify-center">
-                <label htmlFor="iphone-alarm">Iphone Alarm Audio</label>
-                <input
-                  type="radio"
-                  id="iphone-alarm"
-                  name="sound"
-                  className="border-2 border-white rounded-2xl outline-none py-1 px-2 h-12"
-                />
-              </div>
             </div>
             <button
               className="mt-1 py-2 px-4 bg-neutral-800 rounded-xl w-1/3 self-center btn-save"
