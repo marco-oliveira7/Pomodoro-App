@@ -115,7 +115,11 @@ function App() {
   function handleNewSettings() {
     const inputMinutes = document.querySelector("#minutes");
     const inputSeconds = document.querySelector("#seconds");
-    if (inputMinutes.value === "" || inputSeconds.value === "") {
+    if (
+      inputMinutes.value === "" ||
+      inputSeconds.value === "" ||
+      inputMinutes.value.toString()[0] === "0"
+    ) {
       console.log("preencha os campos");
     } else {
       setMinutes(newMinutes);
@@ -209,10 +213,8 @@ function App() {
                 className="text-center border-2 border-white rounded-2xl w-3xs outline-none py-1 px-2"
                 value={newMinutes}
                 onChange={(e) =>
-                  e.target.value >= 61 ||
-                  e.target.value.toString()[0] === "0" ||
-                  /[^0-9]/.test(e.target.value)
-                    ? console.log(`apenas numeros menores que 60`)
+                  e.target.value >= 61 || e.target.value.toString()[0] === "0"
+                    ? console.log(``)
                     : setNewMinutes(e.target.value)
                 }
               />
@@ -234,9 +236,7 @@ function App() {
                   e.target.value.length > 2 ||
                   (e.target.value.toString()[0] === "0" &&
                     e.target.value.toString()[1] === "0")
-                    ? console.log(
-                        "apenas numeros menores que 60 sao permitidos"
-                      )
+                    ? console.log("")
                     : setNewSeconds(e.target.value)
                 }
               />
