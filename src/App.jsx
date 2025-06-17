@@ -45,9 +45,9 @@ function App() {
 
   useEffect(() => {
     if (component === "Break")
-      document.title = `${minutes}:${seconds} - Break Time`;
+      document.title = `${minutes < 10 ? "0" : ""}${minutes}:${seconds < 10 ? "0" : ""}${seconds} - Break Time`;
     else if (component === "Study")
-      document.title = `${minutes}:${seconds} - Study Time`;
+      document.title = `${minutes < 10 ? "0" : ""}${minutes}:${seconds < 10 ? "0" : ""}${seconds} - Study Time`;
 
     if (minutes <= 0 && seconds <= 0 && component === "Study") {
       setIsRunning(false);
@@ -56,14 +56,25 @@ function App() {
       setComponent("Break");
       setCount((c) => c + 1);
 
+      // Lógica para garantir que a notificação irá aparecer na tela do usuário
+      if (Notification.permission === "granted") {
+        const notification = new Notification(
+          `The ${component} time has done!`, {silent: true}
+        );
+      } else if (Notification.permission !== "denied") {
+        Notification.requestPermission().then((permission) => {
+          if (permission === "granted") {
+            const notification = new Notification(
+              `The ${component} time has done!`, {silent: true}
+            );
+          }
+        });
+      }
+
       if (url.current.urlStudy) {
-        console.log("audio modificado");
-        audioStudy = new Audio(url.current.urlStudy);
-        audioStudy.play();
+        playSound(audioStudy, url.current.urlStudy);
       } else {
-        console.log("audio padrao");
-        audioStudy = new Audio(defaultSound);
-        audioStudy.play();
+        playSound(audioStudy, defaultSound);
       }
     } else if (minutes <= 0 && seconds <= 0 && component === "Break") {
       setIsRunning(false);
@@ -71,14 +82,25 @@ function App() {
       setSeconds(0);
       setComponent("Study");
 
+      // Lógica para garantir que a notificação irá aparecer na tela do usuário
+      if (Notification.permission === "granted") {
+        const notification = new Notification(
+          `The ${component} time has done!`, {silent: true}
+        );
+      } else if (Notification.permission !== "denied") {
+        Notification.requestPermission().then((permission) => {
+          if (permission === "granted") {
+            const notification = new Notification(
+              `The ${component} time has done!`, {silent: true}
+            );
+          }
+        });
+      }
+
       if (url.current.urlBreak) {
-        console.log("audio modificado");
-        audioBreak = new Audio(url.current.urlBreak);
-        audioBreak.play();
+        playSound(audioBreak, url.current.urlBreak);
       } else {
-        console.log("audio padrao");
-        audioBreak = new Audio(defaultSound);
-        audioBreak.play();
+        playSound(audioBreak, defaultSound);
       }
     }
   }, [minutes, seconds]);
@@ -111,6 +133,12 @@ function App() {
       };
     }
   }, [isRunning]);
+
+  function playSound(audio, sound) {
+    audio = new Audio(sound);
+    audio.volume = 0.1;
+    audio.play();
+  }
 
   function handleNewSettings() {
     const inputMinutes = document.querySelector("#minutes");
