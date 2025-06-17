@@ -198,16 +198,20 @@ function App() {
             </span>
           </div>
           <div className="relative w-84 flex flex-col justify-center next-container">
-            <button
-              className="px-8 py-4 bg-neutral-800 rounded-2xl text-xl tracking-widest cursor-pointer self-center"
-              onClick={() => setIsRunning(isRunning === false ? true : false)}
-            >
-              {isRunning === false ? "Start" : "Pause"}
-            </button>
+            <div className="flex justify-around mb-2 items-center text-xl">
+              <span className="cursor-pointer" onClick={() => setMinutes((m) => m <= 1 ? 0 : m - 1)}>- 1 min</span>
+              <button
+                className="px-8 py-4 bg-neutral-800 rounded-2xl  tracking-widest cursor-pointer self-center"
+                onClick={() => setIsRunning(isRunning === false ? true : false)}
+              >
+                {isRunning === false ? "Start" : "Pause"}
+              </button>
+              <span className="cursor-pointer" onClick={() => setMinutes((m) => m + 1)}>+ 1 min</span>
+            </div>
             {isRunning && (
               <IconChevronsRight
-                size={36}
-                className="next-icon absolute top-1/5 right-10"
+                size={48}
+                className="next-icon cursor-pointer absolute -top-26 left-90"
                 onClick={() => setNext(true)}
               />
             )}
